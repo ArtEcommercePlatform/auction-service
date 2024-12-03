@@ -9,9 +9,12 @@ import java.util.List;
 public interface AuctionService {
     Auction createAuction(AuctionCreateDTO auctionDTO);
     Auction placeBid(BidDTO bidDTO);
-    Auction getAuction(String id);
+    Auction getAuctionById(String auctionId);
     List<Auction> getActiveAuctions();
     List<Auction> getAuctionsByArtist(String artistId);
+    List<Auction> searchAuctions(String keyword);
     void closeExpiredAuctions();
     void cancelAuction(String auctionId);
+    Auction updateAuctionDetails(String auctionId, AuctionCreateDTO updateDTO);
+    void extendAuctionTime(String auctionId, long extensionMinutes);
 }

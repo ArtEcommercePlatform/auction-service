@@ -16,13 +16,13 @@ public class Auction {
     private String id;
     private String title;
     private String description;
-    private String paintingId;
+    private String paintingUrl;
     private String artistId;
-    private BigDecimal startingPrice;
-    private BigDecimal currentPrice;
+    private double startingPrice;
+    private double currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status; // PENDING, ACTIVE, COMPLETED, CANCELLED
+    private AuctionStatus auctionStatus;
     private List<Bid> bids;
     private String winnerId;
     private LocalDateTime createdAt;

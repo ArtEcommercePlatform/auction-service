@@ -8,5 +8,5 @@ import java.math.BigDecimal;
 public class BidDTO {
     private String auctionId;
     private String userId;
-    private BigDecimal amount;
+    private double amount;
 }

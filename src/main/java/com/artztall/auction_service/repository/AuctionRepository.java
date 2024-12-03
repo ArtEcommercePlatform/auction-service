@@ -1,15 +1,27 @@
 package com.artztall.auction_service.repository;
 
 import com.artztall.auction_service.model.Auction;
+import com.artztall.auction_service.model.AuctionStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Repository
 public interface AuctionRepository extends MongoRepository<Auction, String> {
-    List<Auction> findByStatus(String status);
-    List<Auction> findByArtistId(String artistId);
-    List<Auction> findByEndTimeBefore(LocalDateTime endTime);
-    List<Auction> findByStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-            LocalDateTime now, LocalDateTime now2);
+    @Query("{ 'startTime': { $lte: ?0 }, 'endTime': { $gte: ?0 }, 'auctionStatus': 'ACTIVE' }")
+    List<Auction> findActiveAuctions(LocalDateTime currentTime);
+
+    List<Auction> findByArtistIdAndAuctionStatusIn(String artistId, List<AuctionStatus> statuses);
+
+    @Query("{ 'endTime': { $lt: ?0 }, 'auctionStatus': 'ACTIVE' }")
+    List<Auction> findExpiredActiveAuctions(LocalDateTime currentTime);
+
+    @Query("{ $or: [ " +
+            "{ 'title': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'description': { $regex: ?0, $options: 'i' } } " +
+            "] }")
+    List<Auction> searchAuctionsByKeyword(String keyword);
 }

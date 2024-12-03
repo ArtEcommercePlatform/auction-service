@@ -13,14 +13,14 @@ public class AuctionCreateDTO {
     private String description;
 
 
-    private String paintingId;
+    private String paintingUrl;
 
 
     private String artistId;
 
 
 
-    private BigDecimal startingPrice;
+    private double startingPrice;
 
 
     private LocalDateTime startTime;

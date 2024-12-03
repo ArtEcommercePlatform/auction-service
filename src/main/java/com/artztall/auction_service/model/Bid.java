@@ -10,6 +10,6 @@ public class Bid {
     private String id;
     private String auctionId;
     private String userId;
-    private BigDecimal amount;
+    private double amount;
     private LocalDateTime bidTime;
 }
