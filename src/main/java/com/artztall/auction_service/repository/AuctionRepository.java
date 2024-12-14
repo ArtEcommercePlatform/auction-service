@@ -24,4 +24,7 @@ public interface AuctionRepository extends MongoRepository<Auction, String> {
             "{ 'description': { $regex: ?0, $options: 'i' } } " +
             "] }")
     List<Auction> searchAuctionsByKeyword(String keyword);
+
+    List<Auction> findByAuctionStatus(AuctionStatus status);
+    List<Auction> findByAuctionStatusAndWinnerId(AuctionStatus status, String winnerId);
 }

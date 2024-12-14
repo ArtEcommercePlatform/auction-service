@@ -2,11 +2,13 @@ package com.artztall.auction_service.service;
 
 import com.artztall.auction_service.dto.AuctionCreateDTO;
 import com.artztall.auction_service.dto.BidDTO;
+import com.artztall.auction_service.dto.CompletedAuctionDTO;
 import com.artztall.auction_service.exception.AuctionException;
 import com.artztall.auction_service.exception.BidValidationException;
 import com.artztall.auction_service.model.Auction;
 import com.artztall.auction_service.model.AuctionStatus;
 import com.artztall.auction_service.model.Bid;
+import com.artztall.auction_service.model.PaymentStatus;
 import com.artztall.auction_service.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,6 +43,7 @@ public class AuctionServiceImpl implements AuctionService {
         auction.setStartingPrice(auctionDTO.getStartingPrice());
         auction.setCurrentPrice(auctionDTO.getStartingPrice());
         auction.setStartTime(auctionDTO.getStartTime());
+        auction.setPaymentStatus(PaymentStatus.PENDING);
         auction.setEndTime(calculateEndTime(auctionDTO));
         auction.setAuctionStatus(AuctionStatus.ACTIVE);
 
@@ -156,6 +161,53 @@ public class AuctionServiceImpl implements AuctionService {
         } else {
             throw new AuctionException("Cannot cancel auction in current status");
         }
+    }
+
+    @Override
+    public List<CompletedAuctionDTO> getCompletedAuctions() {
+        return auctionRepository.findByAuctionStatus(AuctionStatus.COMPLETED)
+                .stream()
+                .map(this::convertToCompletedAuctionDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletedAuctionDTO> getCompletedAuctionsByWinnerId(String winnerId) {
+        return auctionRepository.findByAuctionStatusAndWinnerId(AuctionStatus.COMPLETED, winnerId)
+                .stream()
+                .map(this::convertToCompletedAuctionDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BidDTO> getBidHistoryByAuctionId(String auctionId) {
+        Auction auction = getAuctionById(auctionId);
+        return auction.getBids().stream()
+                .map(this::convertToBidDTO)
+                .sorted(Comparator.comparing(BidDTO::getBidTime).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private BidDTO convertToBidDTO(Bid bid) {
+        BidDTO bidDTO = new BidDTO();
+        bidDTO.setAuctionId(bid.getAuctionId());
+        bidDTO.setUserId(bid.getUserId());
+        bidDTO.setAmount(bid.getAmount());
+        bidDTO.setBidTime(bid.getBidTime());
+        return bidDTO;
+    }
+
+    private CompletedAuctionDTO convertToCompletedAuctionDTO(Auction auction) {
+        CompletedAuctionDTO dto = new CompletedAuctionDTO();
+        dto.setId(auction.getId());
+        dto.setTitle(auction.getTitle());
+        dto.setDescription(auction.getDescription());
+        dto.setPaintingUrl(auction.getPaintingUrl());
+        dto.setFinalPrice(auction.getCurrentPrice());
+        dto.setWinnerId(auction.getWinnerId());
+        dto.setEndTime(auction.getEndTime());
+        dto.setPaymentStatus(auction.getPaymentStatus());
+        return dto;
     }
 
     @Override

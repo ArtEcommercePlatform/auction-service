@@ -25,6 +25,7 @@ public class Auction {
     private AuctionStatus auctionStatus;
     private List<Bid> bids;
     private String winnerId;
+    private PaymentStatus paymentStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

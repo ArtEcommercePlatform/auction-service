@@ -2,6 +2,7 @@ package com.artztall.auction_service.controller;
 
 import com.artztall.auction_service.dto.AuctionCreateDTO;
 import com.artztall.auction_service.dto.BidDTO;
+import com.artztall.auction_service.dto.CompletedAuctionDTO;
 import com.artztall.auction_service.model.Auction;
 import com.artztall.auction_service.service.AuctionService;
 import jakarta.validation.Valid;
@@ -135,4 +136,52 @@ public class AuctionController {
         auctionService.extendAuctionTime(auctionId, extensionMinutes);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/completed")
+    @Operation(summary = "Get completed auctions", description = "Retrieves all completed auctions.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Completed auctions retrieved successfully",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))
+    )
+    public ResponseEntity<List<CompletedAuctionDTO>> getCompletedAuctions() {
+        List<CompletedAuctionDTO> completedAuctions = auctionService.getCompletedAuctions();
+        return ResponseEntity.ok(completedAuctions);
+    }
+
+
+    @GetMapping("/completed/winner/{winnerId}")
+    @Operation(
+            summary = "Get Completed Auctions by Winner ID",
+            description = "Retrieve all completed auctions won by a specific user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successfully retrieved completed auctions"),
+                    @ApiResponse(responseCode = "404", description = "No auctions found for the winner")
+            }
+    )
+    public ResponseEntity<List<CompletedAuctionDTO>> getCompletedAuctionsByWinnerId(
+            @Parameter(description = "ID of the winner", required = true)
+            @PathVariable String winnerId
+    ) {
+        List<CompletedAuctionDTO> completedAuctions = auctionService.getCompletedAuctionsByWinnerId(winnerId);
+        return ResponseEntity.ok(completedAuctions);
+    }
+
+    @GetMapping("/{auctionId}/bid-history")
+    @Operation(
+            summary = "Get Bid History for an Auction",
+            description = "Retrieve all bids for a specific auction",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Successfully retrieved bid history"),
+                    @ApiResponse(responseCode = "404", description = "Auction not found")
+            }
+    )
+    public ResponseEntity<List<BidDTO>> getBidHistoryByAuctionId(
+            @Parameter(description = "ID of the auction", required = true)
+            @PathVariable String auctionId
+    ) {
+        List<BidDTO> bidHistory = auctionService.getBidHistoryByAuctionId(auctionId);
+        return ResponseEntity.ok(bidHistory);
+    }
+
 }
